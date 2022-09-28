@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: True
+  roles:
+    - role: all
+
+- hosts: controlplane
+  become: True
+  roles:
+    - role: controlplane
+
+- hosts: worker
+  become: True
+  roles:
+    - role: worker
+...

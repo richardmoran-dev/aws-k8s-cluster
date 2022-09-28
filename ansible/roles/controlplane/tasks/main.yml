@@ -1,0 +1,99 @@
+- name: Create pki directory
+  file:
+    path: /etc/kubernetes/pki
+    state: directory
+    mode: '0755'
+
+- name: Copy ca.crt
+  synchronize:
+    src: /etc/kubernetes/pki/ca.crt
+    dest: /etc/kubernetes/pki
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy ca.key
+  synchronize:
+    src: /etc/kubernetes/pki/ca.key
+    dest: /etc/kubernetes/pki
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy sa.pub
+  synchronize:
+    src: /etc/kubernetes/pki/sa.pub
+    dest: /etc/kubernetes/pki
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy sa.key
+  synchronize:
+    src: /etc/kubernetes/pki/sa.key
+    dest: /etc/kubernetes/pki
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy front-proxy-ca.crt
+  synchronize:
+    src: /etc/kubernetes/pki/front-proxy-ca.crt
+    dest: /etc/kubernetes/pki
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy front-proxy-ca.key
+  synchronize:
+    src: /etc/kubernetes/pki/front-proxy-ca.key
+    dest: /etc/kubernetes/pki
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Create etcd directory
+  ansible.builtin.file:
+    path: /etc/kubernetes/pki/etcd
+    state: directory
+    mode: '0755'
+
+- name: Copy etcd ca.crt
+  synchronize:
+    src: /etc/kubernetes/pki/etcd/ca.crt
+    dest: /etc/kubernetes/pki/etcd
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy etcd ca.key
+  synchronize:
+    src: /etc/kubernetes/pki/etcd/ca.key
+    dest: /etc/kubernetes/pki/etcd
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Download calico tigera operator manifest
+  ansible.builtin.get_url:
+    url: https://docs.projectcalico.org/manifests/tigera-operator.yaml
+    dest: ~/tigera-operator.yaml
+    mode: '0664'
+  run_once: True
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Download calico custom resources manifest
+  ansible.builtin.get_url:
+    url: https://docs.projectcalico.org/manifests/custom-resources.yaml
+    dest: ~/calico-custom-resources.yaml
+    mode: '0664'
+  run_once: True
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Apply calico manifest
+  kubernetes.core.k8s:
+    state: present
+    src: ~/tigera-operator.yaml
+  run_once: True
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Apply calico custom resources manifest
+  kubernetes.core.k8s:
+    state: present
+    src: ~/calico-custom-resources.yaml
+  run_once: True
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Join other controlplanes
+  shell: kubeadm join --control-plane --discovery-file ~/.kube/config --ignore-preflight-errors=all
+  when: inventory_hostname != groups.controlplane.0
+
+- name: Cleanup
+  shell: |
+    rm -rf /root/*
+  run_once: True
+  delegate_to: '{{ groups.controlplane[0] }}'

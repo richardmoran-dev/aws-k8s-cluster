@@ -13,9 +13,9 @@ This repo deploys a fully functioning highly available kubernetes cluster to you
 - Public subnets created and tagged "Tier=public"
 
 ## Create a .cred file
-export AWS_ACCESS_KEY_ID="<YOUR KEY ID HERE>"
-export AWS_SECRET_ACCESS_KEY="<YOUR SECRET KEY HERE>"
-export AWS_REGION="<YOUR AWS REGION HERE>"
+export AWS_ACCESS_KEY_ID="<YOUR KEY ID HERE>"<br/>
+export AWS_SECRET_ACCESS_KEY="<YOUR SECRET KEY HERE>"<br/>
+export AWS_REGION="<YOUR AWS REGION HERE>"<br/>
 
 # Quick Start
 All variables are controlled in the cluster.sh script. The default values will create a cluster of 3 controlplanes and 3 workers on t2.medium instance types running k8s version 1.23.0. Running this on instances smaller than t2.medium will cause issues during the control plane join phase.

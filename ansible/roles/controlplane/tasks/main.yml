@@ -1,3 +1,22 @@
+
+- name: Initialize the cluster
+  shell: kubeadm init --control-plane-endpoint '{{ LOAD_BALANCER_DNS }}':6443 --pod-network-cidr=192.168.0.0/16 --upload-certs --ignore-preflight-errors=all
+  run_once: True
+  delegate_to: '{{ groups.controlplane[0] }}'
+
+- name: Copy id_rsa to controlplane1
+  ansible.builtin.copy:
+    src: ./id_rsa
+    dest: /root/.ssh
+    mode: '0400'
+  when: inventory_hostname == groups.controlplane.0
+
+- name: Copy admin.conf to .kube dir
+  synchronize:
+    src: /etc/kubernetes/admin.conf
+    dest: /root/.kube/config
+  delegate_to: '{{ groups.controlplane[0] }}'
+
 - name: Create pki directory
   file:
     path: /etc/kubernetes/pki

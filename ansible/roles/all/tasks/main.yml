@@ -33,7 +33,7 @@
     state: latest
 
 - name: Install kubernetes libraries
-  shell: pip install kubernetes
+  shell: python3 -m pip install kubernetes
 
 - name: Add containerd gpg key and repo
   shell: |

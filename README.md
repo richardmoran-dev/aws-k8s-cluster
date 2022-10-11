@@ -21,7 +21,7 @@ export AWS_REGION="<YOUR AWS REGION HERE>"<br/>
 All variables are defined in the cluster.bash script. The default values will create a cluster of 3 controlplanes and 3 workers on t2.medium instance types running k8s version 1.23.0. Running this on instances smaller than t2.medium will cause issues during the control plane join phase.
 
 ## Create cluster
-`./cluster.sh create`
+`./cluster.bash create`
 
 ## Destroy cluster
-`./cluster.sh destroy`
+`./cluster.bash destroy`
